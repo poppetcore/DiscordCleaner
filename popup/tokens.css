@@ -1,0 +1,22 @@
+/* Discord Cleaner UI: poppetcore(포코).
+   Original project: https://github.com/victornpb/undiscord (MIT + attribution). */
+:root {
+  color-scheme:light;
+  --background:#f5f7fa;--surface:#ffffff;--surface-soft:#f7f9fb;--surface-variant:#eef2f5;
+  --text-primary:#202124;--text-secondary:#5f6368;--border:#dfe5ea;--input-border:#e4e9ee;
+  --primary:#454545;--primary-hover:#303030;
+  --accent-navy:#364f6b;--accent-navy-hover:#293d54;
+  --accent-pink:#e64b7a;--accent-pink-hover:#ca3d68;
+  --accent-teal:#36b3be;--accent-teal-hover:#269ca7;
+  --disabled-navy:#91a3b3;--disabled-pink:#e5a6b9;--disabled-teal:#9bd5da;
+  --radius-card:15px;--radius-button:11px;--radius-input:10px;
+  /* Shared text roles, based on the message deletion panel. */
+  --text-ui:var(--text-primary);
+  --type-body-size:13px;--type-body-weight:400;--type-body-line:1.5;
+  --type-label-size:12px;--type-label-weight:600;
+  --type-title-size:16px;--type-title-weight:700;--type-title-line:22px;
+  --type-hint-size:11.5px;--type-hint-line:1.45;
+  --type-number-size:18px;--type-number-weight:700;
+  --type-tracking:-.1px;
+  --font-ui:"프리젠테이션";
+}

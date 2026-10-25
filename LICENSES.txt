@@ -1,0 +1,161 @@
+===============================================================================
+                                Discord Cleaner
+                                    LICENSES
+===============================================================================
+
+-------------------------------------------------------------------------------
+[ 문서 및 적용 범위 안내 ]
+-------------------------------------------------------------------------------
+
+이 문서는 배포본에 포함된 제3자 코드와 자산의 적용 조건을 안내합니다.
+코드, 서체 및 아이콘의 라이선스를 구분하며 메인 라이선스를 대체하지 않습니다.
+프로젝트 제작자와 수정 범위는 NOTICE.txt, 사용 방법은 README.txt에 있습니다.
+
+-------------------------------------------------------------------------------
+[ Undiscord 기반 코드의 라이선스 위치 ]
+-------------------------------------------------------------------------------
+
+프로젝트: Undiscord / Victornpb and contributors
+출처: https://github.com/victornpb/undiscord
+Copyright (c) 2019-2025 Victornpb and contributors
+적용 범위: 메시지 검색·삭제 코어와 관련 이식 코드
+MIT 본문 및 추가 출처 유지 문구: LICENCE
+같은 전문을 중복 수록하지 않으며 원본 코드의 출처 주석도 보존합니다.
+
+-------------------------------------------------------------------------------
+[ Freesentation — SIL Open Font License 1.1 ]
+-------------------------------------------------------------------------------
+
+서체: Freesentation
+제작자: The Freesentation Authors
+Copyright 2024 The Freesentation Authors (https://freesentation.blog/)
+출처: https://github.com/Freesentation/freesentation
+원본 커밋: 98f6b841fca55a23fbb0f9eb91acda0e16a676ea
+파일: fonts/freesentation-4regular.woff2 (400)
+      fonts/freesentation-5medium.woff2 (500)
+      fonts/freesentation-6semibold.woff2 (600)
+      fonts/freesentation-7bold.woff2 (700)
+조건: SIL Open Font License 1.1
+전문: LICENSES.txt
+출처·원본 파일명·해시·크기: fonts/provenance.json
+폰트 바이너리는 원본 그대로이며 파일명만 소문자로 변경했습니다.
+CDN이나 설치된 글꼴에 의존하지 않고 확장 프로그램 내부에서 로드합니다.
+
+아래는 기존 폰트 저작권 고지 및 OFL 전문입니다. 원문을 그대로 보존했습니다.
+
+Copyright 2024 The Freesentation Authors (https://freesentation.blog/)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+https://scripts.sil.org/OFL
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+-------------------------------------------------------------------------------
+[ iconmonstr — 별도 이용 조건 및 출처 ]
+-------------------------------------------------------------------------------
+
+원본 아이콘: iconmonstr-trash-can-lined.svg (사용자 제공 SVG)
+제작자: Alexander Kahlkopf / iconmonstr
+공식 이용 조건: https://iconmonstr.com/license/
+적용 파일: assets/cleanup-symbol.svg
+           assets/icon16.png
+           assets/icon32.png
+           assets/icon48.png
+           assets/icon128.png
+기존 수정: SVG 색상 #454545 지정 및 투명 배경 16/32/48/128px PNG 변환
+이번 정리에서는 SVG와 PNG를 변경하지 않았습니다.
+
+아이콘에는 코드 라이선스와 별개의 iconmonstr 이용 조건이 적용됩니다.
+기존 고지는 애플리케이션 디자인의 일부로서의 사용·수정과 아이콘 자체의 재배포,
+양도·재허가 및 로고·상표·서비스표 사용 제한을 안내했습니다.
+이 아이콘은 동작하는 확장 UI의 일부로 포함되며 독립 아이콘 모음으로 제공하지 않습니다.
+아이콘 추출·재배포·브랜드 자산 사용 전 공식 조건을 확인하세요.
+이 안내는 이용 조건 전문을 대신하지 않으며 코드의 MIT License가 아이콘을
+재라이선스하거나 새 권리를 부여하지 않습니다. 공식 URL의 전체 조건이 적용됩니다.

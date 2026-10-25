@@ -1,0 +1,42 @@
+{
+  "repository": "https://github.com/Freesentation/freesentation",
+  "commit": "98f6b841fca55a23fbb0f9eb91acda0e16a676ea",
+  "license_original_path": "OFL license.txt",
+  "unmodified": true,
+  "files": {
+    "freesentation-4regular.woff2": {
+      "git_blob_sha": "cf61a81e7c68fa85a23705c11dbdcf2d9a3068c6",
+      "sha256": "3b8eff642db011de013dcec90501cfea3f36cbebf4c604ccc05cf862ac365165",
+      "size": 473564,
+      "original_filename": "Freesentation-4Regular.woff2"
+    },
+    "freesentation-5medium.woff2": {
+      "git_blob_sha": "88fda4239546c28185f3fab9b46e88c2f2bc784f",
+      "sha256": "8b709b83bc76dd6f2585ecd8c122afdc5043dabc7790f9d092201f438e3d6947",
+      "size": 475488,
+      "original_filename": "Freesentation-5Medium.woff2"
+    },
+    "freesentation-6semibold.woff2": {
+      "git_blob_sha": "263ff4093ee845bece30554caa068be06ebbddab",
+      "sha256": "2a3155bcc0b7d7178da0f8e32cc1534545e922cbfb6c057604f30f3269a27f6f",
+      "size": 483064,
+      "original_filename": "Freesentation-6SemiBold.woff2"
+    },
+    "freesentation-7bold.woff2": {
+      "git_blob_sha": "995f0754256a9894289517d4b644d9a145a2811f",
+      "sha256": "668055a6dcb3115afd7b2da45863acffe0cef6b309ed969099e198746c035dce",
+      "size": 485464,
+      "original_filename": "Freesentation-7Bold.woff2"
+    }
+  },
+  "source_license": {
+    "git_blob_sha": "84a5d92f9800503fa2d6d28e20824e0b7f24ba2f",
+    "sha256": "d592b07a70a08517d00a6b606046a1a3dce40473c870738852cf3011ad0c8820",
+    "size": 4375,
+    "original_filename": "OFL license.txt",
+    "previous_distribution_filename": "OFL.txt",
+    "distribution_path": "../LICENSES.txt",
+    "distribution_section": "Freesentation — SIL Open Font License 1.1",
+    "hash_scope": "Exact original OFL text embedded in LICENSES.txt; not the whole consolidated file."
+  }
+}

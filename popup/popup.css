@@ -1,0 +1,87 @@
+/* Discord Cleaner UI: poppetcore(포코).
+   Original project: https://github.com/victornpb/undiscord (MIT + attribution). */
+html {width:380px;max-width:100%;max-height:600px;background:var(--background);overflow:hidden;}
+body {width:380px;max-width:100%;max-height:600px;min-height:0;padding:14px 16px 16px;overflow:hidden;}
+#undiscord {width:100%;min-width:0;}
+.app-bar {display:flex;align-items:center;gap:11px;margin-bottom:14px;padding:0 3px;}
+.app-icon {flex:none;width:38px;height:38px;padding:6px;border:1px solid #e1e6eb;border-radius:11px;background:var(--surface);object-fit:contain;}
+.title-group {min-width:0;}
+.title {margin:0;font-size:18px;font-weight:700;line-height:24px;letter-spacing:0;color:var(--text-ui);}
+.subtitle {margin:3px 0 0;color:var(--text-ui);font-size:var(--type-hint-size);line-height:var(--type-hint-line);}
+.section-head {display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.section-kicker {font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--text-ui);}
+#targetInfo {margin-top:5px;font-size:11px;overflow-wrap:anywhere;}
+#notice {margin:0;white-space:pre-wrap;overflow-wrap:anywhere;}
+#filterFields {display:flex;flex-direction:column;gap:12px;}
+#toggleSidebar {text-align:center;}
+.stats {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px;}
+.stat {min-width:0;text-align:center;border-right:1px solid var(--border);}
+.stat:last-child {border:0;}
+.stat-label {display:block;font-size:var(--type-label-size);font-weight:var(--type-label-weight);line-height:var(--type-body-line);color:var(--text-ui);}
+.stat-value {display:block;margin-top:2px;font-size:var(--type-number-size);font-weight:var(--type-number-weight);color:var(--text-ui);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
+.status-row {display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.status-badge {display:inline-flex;align-items:center;gap:6px;font-size:var(--type-label-size);font-weight:var(--type-label-weight);line-height:var(--type-body-line);color:var(--text-ui);}
+.status-dot {width:6px;height:6px;border-radius:50%;background:var(--accent-teal);flex:none;}
+#jobStatus[data-phase="error"]+.status-dot {background:var(--accent-pink);}
+#progressBar {display:block;width:100%;height:7px;margin:10px 0 0;border:0;border-radius:10px;overflow:hidden;accent-color:var(--accent-teal);}
+#progressBar::-webkit-progress-bar {background:var(--surface-variant);border-radius:10px;}
+#progressBar::-webkit-progress-value {background:var(--accent-teal);border-radius:10px;}
+#progressBar::-moz-progress-bar {background:var(--accent-teal);border-radius:10px;}
+#stop {background:var(--accent-teal);border:1px solid var(--accent-teal);color:#fff;}
+#stop:hover:not(:disabled) {background:var(--accent-teal-hover);border-color:var(--accent-teal-hover);color:#fff;}
+#stop:disabled {background:var(--disabled-teal);border-color:var(--disabled-teal);color:#fff;}
+/* Native mint accents can choose a dark tick; draw a consistent white tick. */
+#panel-progress input[type="checkbox"] {appearance:none;-webkit-appearance:none;display:grid;place-content:center;border:1px solid var(--input-border);border-radius:4px;background:white;}
+#panel-progress input[type="checkbox"]:checked {background:var(--accent-teal);border-color:var(--accent-teal);}
+#panel-progress input[type="checkbox"]:checked::before {content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:translateY(-1px) rotate(-45deg);}
+#logArea {white-space:pre-wrap;overflow-wrap:anywhere;margin:0;font-size:var(--type-body-size);font-weight:var(--type-body-weight);line-height:var(--type-body-line);}
+#logArea {max-height:180px;overflow:auto;}
+.log {padding:4px 0;border-bottom:1px solid var(--border);}
+.log:last-child {border:0;}
+.redact input[priv] {-webkit-text-security:disc;}
+body.modal-open {overflow:hidden;}
+.link-input {width:100%;}
+@media (prefers-reduced-motion:reduce) {*,*::before,*::after {transition:none !important;}}
+
+/* One persistent tab panel; no remounting or filter resets. */
+#undiscord,#appContent {min-height:0;}
+#appContent {display:flex;flex-direction:column;max-height:570px;}
+.app-bar,.tabs {flex:none;}
+.tabs {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-bottom:10px;}
+.tabs button {min-width:0;padding:10px 3px;font-size:12px;white-space:nowrap;background:var(--surface);color:var(--text-ui);border:1px solid var(--border);}
+#tab-delete {--tab-color:var(--accent-navy);}
+#tab-filter {--tab-color:var(--accent-pink);}
+#tab-progress {--tab-color:var(--accent-teal);}
+.tabs button[aria-selected="true"] {background:var(--tab-color);border-color:var(--tab-color);color:white;}
+.tabs button:hover:not(:disabled) {background:var(--tab-color);border-color:var(--tab-color);color:white;}
+main {display:flex;flex-direction:column;flex:0 1 auto;min-height:0;overflow:hidden;}
+[role="tabpanel"] {flex:0 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;margin:0;}
+#guildName,#channelName {overflow-wrap:anywhere;}
+#busyDot {font-size:9px;}
+.confirm-card {overflow-wrap:anywhere;}
+#openDiscord {margin-top:8px;}
+
+#guildName {font-weight:400;}
+
+
+/* Confirmation keeps its header and actions visible; only content may scroll. */
+#confirmation {padding:12px;}
+#confirmation .confirmation-card {display:flex;flex-direction:column;min-height:0;max-height:100%;overflow:hidden;padding:0;border-top:4px solid var(--accent-navy);border-radius:var(--radius-card);}
+.confirmation-header {display:flex;flex:none;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px 8px;}
+#closeConfirmation {flex:none;width:32px;min-height:32px;height:32px;padding:0;font-size:22px;line-height:1;}
+.confirmation-content {flex:0 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 14px;display:flex;flex-direction:column;gap:10px;}
+.confirmation-content>.hint {flex:none;}
+.confirmation-summary {flex:none;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 12px;}
+.confirmation-summary dt,.confirmation-conditions dt {font-size:var(--type-label-size);font-weight:var(--type-label-weight);}
+.confirmation-summary dd {min-width:0;margin:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.confirmation-filters {flex:none;min-width:0;}
+.confirmation-filters>summary {display:flex;justify-content:space-between;gap:8px;cursor:pointer;list-style:none;padding:6px 0;font-size:var(--type-label-size);font-weight:var(--type-label-weight);}
+.confirmation-filters>summary::-webkit-details-marker {display:none;}
+.confirmation-filters>summary::after {content:"▾";}
+.confirmation-filters[open]>summary::after {content:"▴";}
+.confirmation-conditions {display:grid;grid-template-columns:88px minmax(0,1fr);gap:8px 10px;margin:8px 0 4px;}
+.confirmation-conditions dd {min-width:0;margin:0;overflow-wrap:anywhere;white-space:pre-wrap;}
+.confirmation-footer {flex:none;padding:10px 14px 14px;background:var(--surface);}
+.confirmation-warning {margin:0 0 10px;font-size:var(--type-hint-size);line-height:var(--type-hint-line);color:var(--text-ui);}
+.confirmation-warning span {color:var(--accent-navy);}
+.confirmation-footer .confirm-actions {margin:0;gap:8px;}
