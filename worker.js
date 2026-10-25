@@ -1,6 +1,6 @@
 // Unofficial derivative of https://github.com/victornpb/undiscord (MIT + attribution).
 import { installRuntime } from './runtime-install.js';
-const busy = phase => ['searching','awaiting-confirmation','running','search-wait','rate-wait','retry-wait','verifying','stopping'].includes(phase);
+const busy = phase => ['searching','awaiting-confirmation','running','search-wait','rate-wait','retry-wait','stopping'].includes(phase);
 const key = id => `tab:${id}`;
 const allowedUrl = value => {try {const url=new URL(value);return url.origin==='https://discord.com'&&url.pathname.startsWith('/channels/');}catch{return false;}};
 const locks = new Map();
@@ -38,7 +38,7 @@ async function command(tabId, command) {
     let row=await saved(tabId);
     if(!row){row={capability:crypto.randomUUID()+crypto.randomUUID(),last:null};await chrome.storage.session.set({[key(tabId)]:row});}
     const [installed]=await chrome.scripting.executeScript({target:{tabId,frameIds:[0]},world:'MAIN',func:installRuntime,args:[row.capability]});
-    if(installed?.result?.version!==4&&['prepare','confirm'].includes(command.type))throw new Error('Discord 탭을 새로고침하여 최신 실행 코드를 적용해 주세요.');
+    if(installed?.result?.version!==5&&['prepare','confirm'].includes(command.type))throw new Error('Discord 탭을 새로고침하여 최신 실행 코드를 적용해 주세요.');
     if(installed?.result?.fresh&&busy(row.last?.phase))row.interruption={...row.last,phase:'interrupted',reason:'페이지 실행 환경이 새로 생성되어 이전 작업은 종료되었습니다. 집계는 마지막 조회 기준입니다.'};
     const [result]=await chrome.scripting.executeScript({target:{tabId,frameIds:[0]},world:'MAIN',func:async(secret,payload)=>{
       try {

@@ -61,8 +61,8 @@
 <p id="jobNotice" class="info-box" role="status" aria-live="polite" hidden></p>
 <div class="info-box" aria-live="polite" aria-atomic="true">
 <div class="status-row"><span class="status-badge"><span class="status-dot" aria-hidden="true"></span><span id="jobStatus" data-phase="idle">대기 중</span></span></div>
-<div class="stats"><div class="stat"><span class="stat-label" title="Discord API 검색 결과 추정치">검색</span><strong id="countTotal" class="stat-value">—</strong></div><div class="stat"><span class="stat-label">삭제 성공</span><strong id="countSuccess" class="stat-value">—</strong></div><div class="stat"><span class="stat-label">삭제 실패</span><strong id="countFailed" class="stat-value">—</strong></div></div>
-<progress id="progressBar" aria-label="확인한 삭제 대상의 처리 진행률" max="100" value="0" hidden></progress>
+<div class="stats"><div class="stat"><span class="stat-label" title="실제로 확인된 고유 삭제 대상 수">검색</span><strong id="countTotal" class="stat-value">—</strong></div><div class="stat"><span class="stat-label">삭제 성공</span><strong id="countSuccess" class="stat-value">—</strong></div><div class="stat"><span class="stat-label">삭제 실패</span><strong id="countFailed" class="stat-value">—</strong></div></div>
+<progress id="progressBar" aria-label="확인한 삭제 대상의 처리 진행률" max="100" hidden></progress>
 </div>
 <button id="stop" disabled>작업 중단</button>
 <details class="details" id="logDetails"><summary>작업 로그 확인</summary><div class="field-stack">

@@ -3,10 +3,10 @@
 const $=selector=>document.querySelector(selector);
 const valueIds=['authorId','guildId','channelId','minId','maxId','minDate','maxDate','search','pattern','searchDelay','deleteDelay'];
 const flagIds=['hasLink','hasFile','includeNsfw','includePinned'];
-const phases={idle:'대기 중',searching:'검색 중', 'awaiting-confirmation':'삭제 확인 대기',running:'삭제 중',stopping:'중단 처리 중',stopped:'중단됨',completed:'완료',partial:'일부 미처리','search-wait':'다음 검색 대기 중','rate-wait':'Discord 요청 제한 대기 중','retry-wait':'요청 재시도 대기 중',verifying:'잔여 메시지 확인 중',error:'오류'};
+const phases={idle:'대기 중',searching:'검색 중', 'awaiting-confirmation':'삭제 확인 대기',running:'삭제 중',stopping:'중단 처리 중',stopped:'중단됨',completed:'완료',partial:'일부 미처리','search-wait':'다음 검색 대기 중','rate-wait':'Discord 요청 제한 대기 중','retry-wait':'요청 재시도 대기 중',error:'오류'};
 let liveContext=null, jobContext=null, selectionIssue='', initialized=false, refreshQueued=false;
 let selected=null,current=null,currentPath='',polling=false,generation=0,lastLogs='',restoredJob='',busyCommand=false;
-const active=state=>state&&['searching','awaiting-confirmation','running','search-wait','rate-wait','retry-wait','verifying','stopping'].includes(state.phase);
+const active=state=>state&&['searching','awaiting-confirmation','running','search-wait','rate-wait','retry-wait','stopping'].includes(state.phase);
 function notice(text){$('#noticeBox').hidden=!text&&$('#openDiscord').hidden;$('#notice').textContent=text;$('#notice').dataset.tone=/실패|오류|불가|없습니다|올바른/.test(text)?'error':'info';}
 function jobNotice(text){$('#jobNotice').textContent=text;$('#jobNotice').hidden=!text;}
 let modalReturnFocus=null;
@@ -62,7 +62,7 @@ function readOptions(){
   for(const id of flagIds)options[id]=$('#'+id).checked;
   return options;
 }
-// The tab runner owns the global denominator and final outcome ledger.
+// The tab runner confirms the denominator only after normal search exhaustion.
 function calculateProgress(state) {
   const p=state?.progress;
   if(!p||!p.known||!Number.isFinite(p.value))return {known:false,value:0};
@@ -75,7 +75,7 @@ function updateProgressBar(state) {
   if(progress.known)bar.value=progress.value;
   else bar.removeAttribute('value');
   bar.setAttribute('aria-valuetext',progress.known?
-    `전체 검색 대상 ${progress.total}건 중 ${progress.processed}건 처리`:'전체 검색 건수 확인 중');
+    `확인한 삭제 대상 ${progress.total}건 중 ${progress.processed}건 처리`:'전체 진행률 미확정 · 확인된 삭제 대상만 집계');
 }
 // Display-only mapping: options continue to be sent unchanged to the runner.
 function confirmationRows(state) {
@@ -83,10 +83,10 @@ function confirmationRows(state) {
   const user=info.users?.find(user=>user.id===o.authorId);
   const author=!o.authorId?'전체 작성자':user?.displayName&&user.username?`${user.displayName} (${user.username})`:user?.displayName||user?.username||`사용자 ID ${o.authorId}`;
   const count=state.counts?.total;
-  const known=state.progress?.known===true&&Number.isSafeInteger(count)&&count>=0;
+  const known=Number.isSafeInteger(count)&&count>=0;
   const summary=info.isDM?[['DM 대상',info.guildName||'정보 확인 불가']]:[
     ['서버',info.guildName||'정보 확인 불가'],['채널',!o.channelId?'서버 전체 채널':info.channelName?`# ${info.channelName}`:'정보 확인 불가']];
-  summary.push(['작성자',author],['검색 결과(추정)',known?`${count.toLocaleString('ko-KR')}개`:'확인 중']);
+  summary.push(['작성자',author],['현재까지 확인한 삭제 대상',known?`${count.toLocaleString('ko-KR')}개`:'확인 중']);
   const boundary=(value,direction)=>!value?'제한 없음':/^\d+$/.test(value)?`메시지 ID ${value} ${direction}`:`${value.replace('T',' ')} ${direction} (현지 시간)`;
   return {summary,conditions:[
     ['검색어',o.content||'없음'],['시작 경계',boundary(o.minId,'이후')],['종료 경계',boundary(o.maxId,'이전')],

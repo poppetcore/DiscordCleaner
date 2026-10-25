@@ -8,7 +8,7 @@ const modules = {
 // Original project: https://github.com/victornpb/undiscord (MIT + attribution).
 const { createRunner } = require("src/runtime/runner.js");
 const runner = createRunner(capability);
-Object.defineProperty(window, marker, {value:Object.freeze({dispatch:runner.dispatch,version:4}), configurable:false});
+Object.defineProperty(window, marker, {value:Object.freeze({dispatch:runner.dispatch,version:5}), configurable:false});
 setInterval(runner.reconcile,500);
 window.addEventListener('popstate',runner.reconcile);
 
@@ -28,7 +28,7 @@ function createRunner(capability, environment = {}) {
   let phase = 'idle', jobId = '', reason = '', requestPath = '', stopRequested = false;
   let cooldownUntil = 0, jobContext = null, waitState=null, activitySeen=false;
   let resolveConfirmation = null, preview = [], logs = [], options = null, error = '';
-  const active = () => ['searching','awaiting-confirmation','running','search-wait','rate-wait','retry-wait','verifying','stopping'].includes(phase);
+  const active = () => ['searching','awaiting-confirmation','running','search-wait','rate-wait','retry-wait','stopping'].includes(phase);
   function record(type,args) {
     const text = Array.from(args).map(value=>String(value)).join(' ').slice(0,3000);
     logs.push({type,text});if(logs.length>500)logs.shift();
@@ -36,9 +36,9 @@ function createRunner(capability, environment = {}) {
   }
   (environment.setLogger || setLogFn)(record);
   function snapshot() {
-    return { version:4, context:getContext(options?.authorId), jobContext, cooldownUntil, wait:waitState, result:core.result, phase, jobId, reason, options: options && {...options}, path:path(),
+    return { version:5, context:getContext(options?.authorId), jobContext, cooldownUntil, wait:waitState, result:core.result, phase, jobId, reason, options: options && {...options}, path:path(),
       progress:core.progress(),
-      counts:{success:core.state.delCount,failed:core.state.failCount,total:core.state.grandTotal,unique:core.state.uniqueCount||0,targets:core.state.targetCount||0,excluded:core.state.excludedCount||0,pending:core.state.pendingCount||0,exclusions:{...core.state.exclusions}},
+      counts:{success:core.state.delCount,failed:core.state.failCount,total:core.state.targetCount,unique:core.state.uniqueCount||0,targets:core.state.targetCount||0,excluded:core.state.excludedCount||0,pending:core.state.pendingCount||0,exclusions:{...core.state.exclusions}},
       elapsed:core.stats.startTime?Math.max(0,(core.stats.endTime?.getTime()||Date.now())-core.stats.startTime.getTime()):0,
       remaining:Number.isFinite(core.stats.etr)?core.stats.etr:0,
       throttled:core.stats.throttledCount,
@@ -112,20 +112,20 @@ const { searchMessages, filterSearchResponse } = require('src/core/message-searc
 const { deleteMessage } = require('src/core/message-delete.js');
 const { DiscordApi, pause, stopped } = require('src/core/api.js');
 const { log } = require('src/utils/log.js');
-const freshState=()=>({running:false,delCount:0,failCount:0,grandTotal:0,offset:0,iterations:0,
-  totalKnown:false,searchComplete:false,uniqueCount:0,targetCount:0,excludedCount:0,pendingCount:0,exclusions:{},malformed:false,
+const freshState=()=>({running:false,delCount:0,failCount:0,iterations:0,
+  searchComplete:false,uniqueCount:0,targetCount:0,excludedCount:0,pendingCount:0,exclusions:{},malformed:false,
   _seachResponse:null,_messagesToDelete:[],_skippedMessages:[]});
 class UndiscordCore {
   options={authorId:null,guildId:null,channelId:null,minId:null,maxId:null,content:null,
     hasLink:false,hasFile:false,includeNsfw:false,includePinned:false,pattern:'',searchDelay:30000,deleteDelay:1000,askForConfirmation:true};
   state=freshState();
   stats={startTime:null,endTime:null,throttledCount:0,throttledTotalTime:0,lastPing:0,avgPing:0,etr:0};
-  ledger=new Map();finishedIds=new Set();api=null;controller=null;result=null;
+  ledger=new Map();api=null;controller=null;result=null;
   activity='searching';waitState=null;lastSearchAt=null;prefetch=null;waits=new Map();
   // Limits bound changing indexes, repeated pages and very large searches.
-  limits={verificationPasses:4,cleanPasses:2,pagesPerPass:1000,uniqueMessages:200000};
+  limits={pagesPerPass:1000,uniqueMessages:200000};
   constructor({fetcher=globalThis.fetch,sleeper=pause,now=()=>Date.now()}={}) {this.fetcher=fetcher;this.sleeper=sleeper;this.now=now;}
-  resetState(){this.state=freshState();this.ledger.clear();this.finishedIds.clear();this.result=null;this.waitState=null;this.lastSearchAt=null;this.prefetch=null;this.waits.clear();this.options.askForConfirmation=true;}
+  resetState(){this.state=freshState();this.ledger.clear();this.result=null;this.waitState=null;this.lastSearchAt=null;this.prefetch=null;this.waits.clear();this.options.askForConfirmation=true;}
   configure(token){
     this.controller=new AbortController();
     this.api=new DiscordApi(token,{signal:this.controller.signal,fetcher:this.fetcher,
@@ -161,23 +161,19 @@ class UndiscordCore {
       else {this.state.exclusions[item.reason]=(this.state.exclusions[item.reason]||0)+delta;if(!this.state.exclusions[item.reason])delete this.state.exclusions[item.reason];}
     };
     update(previous,-1);const item={status,reason};this.ledger.set(id,item);update(item,1);this.state.uniqueCount=this.ledger.size;
-    if(status==='success'||status==='failed')this.finishedIds.add(id);
-    this.state.grandTotal=Math.max(this.state.grandTotal,this.state.uniqueCount);
     this.onProgress?.(this.state,this.stats);
   }
   progress(){
-    const processed=this.state.delCount+this.state.failCount+this.state.excludedCount;
-    const verified=this.result?.verified===true&&this.state.searchComplete&&this.state.pendingCount===0;
-    const total=verified?this.state.uniqueCount:this.state.grandTotal;
-    const known=verified||this.state.totalKnown;
-    const raw=total>0?processed/total*100:0;
-    return {processed,total:known?total:null,verified,known,
-      value:verified?100:Math.min(99,Math.max(0,Number.isFinite(raw)?raw:0))};
+    const processed=this.state.delCount+this.state.failCount;
+    const known=this.state.searchComplete&&!this.state.malformed;
+    const total=this.state.targetCount;
+    return {processed,total:known?total:null,known,
+      value:known?(total?processed/total*100:100):null};
   }
   // Only this consumer mutates filtering/ledger state. The producer holds one
   // response (or request) and never writes the deletion queue.
-  async sweep(verifying){
-    let cursor=null,candidates=0,stale=false;
+  async sweep(){
+    let cursor=null;
     this.state.searchComplete=false;
     const launch=bound=>{
       const task=this.search(bound).then(data=>({data}),error=>({error}));
@@ -185,38 +181,31 @@ class UndiscordCore {
     };
     let next=launch(cursor);
     for(let page=0;page<this.limits.pagesPerPass;page++){
-      this.report(verifying?'verifying':'searching');
+      this.report('searching');
       const result=await next;this.prefetch=null;
       if(!this.state.running)throw stopped();
       if(result.error)throw result.error;
       this.state.iterations++;
       this.state._seachResponse=result.data;
-      // Only the original unrestricted query supplies the global denominator.
-      // Cursor-page totals describe the remaining range, not the whole job.
-      if((!verifying||!this.state.totalKnown)&&page===0&&Number.isSafeInteger(result.data.total_results)&&result.data.total_results>=0){
-        this.state.totalKnown=true;this.state.grandTotal=Math.max(this.state.uniqueCount,result.data.total_results+(verifying?this.state.delCount:0));
-      }
       await this.filterResponse();
-      if(result.data.doing_deep_historical_index===true){this.state.malformed=true;log.warn('검색 인덱싱이 진행 중이므로 완전한 잔여 확인을 보장할 수 없습니다.');}
+      if(result.data.doing_deep_historical_index===true){this.state.malformed=true;log.warn('검색 인덱싱이 진행 중이므로 검색 결과의 완전성을 확정할 수 없습니다.');}
       const ids=this.state._pageIds;
-      if(!result.data.messages.length){this.state.searchComplete=true;return {candidates,stale};}
+      if(!result.data.messages.length){this.state.searchComplete=true;this.onProgress?.(this.state,this.stats);return;}
       if(!ids.length){const error=new Error('검색 결과에서 유효한 메시지를 확인하지 못했습니다.');error.incomplete=true;throw error;}
       const oldest=ids.reduce((a,b)=>BigInt(a)<BigInt(b)?a:b);
       if(cursor&&BigInt(oldest)>=BigInt(cursor)){
         const error=new Error('검색 커서가 진행되지 않아 안전하게 중단했습니다.');error.incomplete=true;throw error;
       }
       if(cursor&&ids.some(id=>BigInt(id)>=BigInt(cursor))){
-        const error=new Error('검색 경계 밖의 응답으로 잔여 확인을 완료할 수 없습니다.');error.incomplete=true;throw error;
+        const error=new Error('검색 경계 밖의 응답으로 검색을 안전하게 중단했습니다.');error.incomplete=true;throw error;
       }
-      stale ||= this.state._pageStaleSuccess;
       const queue=this.state._messagesToDelete;
-      candidates+=queue.length;
       if(queue.length&&await this.confirm()===false){this.stop();throw stopped();}
       if(!this.state.running)throw stopped();
       cursor=oldest;
       // Launch before draining the queue: at most one additional page is held.
       next=launch(cursor);
-      this.report(verifying?'verifying':'running');
+      this.report('running');
       await this.deleteMessagesFromList(queue);
       this.state._messagesToDelete=[];
     }
@@ -228,24 +217,18 @@ class UndiscordCore {
     this.stats.throttledCount=0;this.stats.throttledTotalTime=0;this.stats.etr=0;
     this.onStart?.();log.info('검색·삭제 작업을 시작합니다.');
     try{
-      await this.sweep(false);
-      let clean=0,verified=false,passes=0;
-      for(;passes<this.limits.verificationPasses;passes++){
-        this.report('verifying');await this.wait(Math.max(this.options.searchDelay,1000),'next-search');
-        log.info(`잔여 확인 ${passes+1}회 시작: ${new Date(this.now()).toISOString()} · 원래 검색 조건 전체 범위`);
-        const result=await this.sweep(true);
-        log.info(`잔여 확인 ${passes+1}회: 새 삭제 대상 ${result.candidates} / 삭제 성공 항목 재노출 ${result.stale?'있음':'없음'}`);
-        clean=result.candidates===0&&!result.stale&&!this.state.malformed?clean+1:0;
-        if(clean>=this.limits.cleanPasses){verified=true;passes++;break;}
-      }
-      if(verified)log.info(`검색 인덱스 범위 검증 완료: 고유 메시지 ${this.state.uniqueCount}건으로 전체 진행률을 정리합니다. 인덱스 밖의 메시지는 보장하지 않습니다.`);
-      const complete=verified&&this.state.failCount===0&&this.state.pendingCount===0;
-      this.result={outcome:complete?'completed':'partial',verified,passes,
-        reason:complete?'동일 조건으로 연속 2회 잔여 확인을 마쳤습니다. 검색 인덱스 범위의 결과입니다.':
-          verified?'확인된 삭제 실패 또는 미처리 메시지가 남았습니다.':'재검증 한도 내에 안정적인 잔여 확인을 마치지 못했습니다.'};
+      await this.sweep();
+      if(!this.state.running||this.controller.signal.aborted)throw stopped();
+      const consistent=this.state.targetCount===this.state.delCount+this.state.failCount+this.state.pendingCount;
+      if(!consistent)throw new Error('메시지 집계 상태가 일치하지 않습니다.');
+      const complete=this.state.searchComplete&&!this.state.malformed&&this.state.failCount===0&&this.state.pendingCount===0;
+      this.result={outcome:complete?'completed':'partial',
+        reason:complete?'검색 및 삭제 작업이 완료되었습니다.':
+          this.state.malformed?'검색 응답 또는 인덱싱 상태로 전체 검색 결과를 확정하지 못했습니다.':
+          `삭제 실패 ${this.state.failCount}건, 미처리 ${this.state.pendingCount}건이 남았습니다.`};
     }catch(error){
       const cancelled=this.controller?.signal.aborted||!this.state.running;
-      this.result={outcome:cancelled?'stopped':error.incomplete?'partial':'error',verified:false,reason:cancelled?'작업이 중단되었습니다.':error.message||'작업 중 오류가 발생했습니다.'};
+      this.result={outcome:cancelled?'stopped':error.incomplete?'partial':'error',reason:cancelled?'작업이 중단되었습니다.':error.message||'작업 중 오류가 발생했습니다.'};
       log[cancelled||error.incomplete?'warn':'error'](this.result.reason);
     }finally{
       this.state.running=false;this.controller?.abort();
@@ -269,8 +252,15 @@ class UndiscordCore {
       // The filter is rechecked immediately before the destructive request.
       const reason=this.exclusionReason(message);
       if(reason){this.setOutcome(message.id,'excluded',reason);continue;}
-      try{const result=await this.deleteMessage(message);if(!this.state.running||this.controller.signal.aborted)throw stopped();this.setOutcome(message.id,result==='OK'?'success':'failed');}
-      catch(error){throw error;} // An unconfirmed response remains pending, never a final failure.
+      try{
+        const result=await this.deleteMessage(message);
+        // A confirmed response remains authoritative even if stop was requested in flight.
+        this.setOutcome(message.id,result==='OK'?'success':'failed');
+      }catch(error){
+        if(error.definiteFailure)this.setOutcome(message.id,'failed');
+        throw error; // Ambiguous responses stay pending and are never retried.
+      }
+      if(!this.state.running||this.controller.signal.aborted)throw stopped();
       this.onProgress?.(this.state,this.stats);
       if(this.state.running)await this.sleep(this.options.deleteDelay);
     }
@@ -309,17 +299,18 @@ async function searchMessages(cursor=null) {
     this.afterRequest();
     if (!resp.ok) throw new Error(`검색 실패: Discord HTTP ${resp.status}`);
     let data;try{data=await resp.json();}catch{throw new Error('Discord 검색 응답을 읽지 못했습니다.');}
-    if (!Array.isArray(data.messages) ||
+    if (!data || !Array.isArray(data.messages) ||
         data.messages.some(group => !Array.isArray(group))) throw new Error('Discord 검색 응답 형식이 변경되었습니다.');
     return data;
   }
 
 async function filterSearchResponse() {
     const data=this.state._seachResponse;
-    // Full-query total is captured by sweep; cursor totals are never global.
+    const validId=value=>typeof value==='string'&&/^[1-9]\d{0,19}$/.test(value)&&BigInt(value)<=18446744073709551615n;
     // Stable exclusion precedence assigns exactly one reason to each unique ID.
     const exclusion=message=>{
-      if(!/^\d+$/.test(String(message.channel_id||''))){this.state.malformed=true;return 'other';}
+      if(message.hit!==true)return 'other';
+      if(!validId(message.id)||!validId(message.channel_id)){this.state.malformed=true;return 'other';}
       if(this.options.guildId!=='@me'&&message.guild_id&&message.guild_id!==this.options.guildId)return 'channel';
       if(this.options.authorId&&message.author?.id!==this.options.authorId)return 'author';
       if(this.options.channelId&&message.channel_id!==this.options.channelId)return 'channel';
@@ -328,28 +319,33 @@ async function filterSearchResponse() {
       if(this.options.maxId&&id>=BigInt(toSnowflake(this.options.maxId)))return 'range';
       if(!(message.type===0||(message.type>=6&&message.type<=21)))return 'system';
       if(message.pinned&&!this.options.includePinned)return 'pinned';
-      if(!new RegExp(this.options.pattern||'','i').test(message.content||''))return 'regex';
+      // Discord's content search selects hits server-side; also check the actual text.
+      const content=String(message.content||'');
+      const terms=(this.options.content||'').match(/"[^"]+"|\S+/g)||[];
+      if(terms.some(term=>!content.toLocaleLowerCase().includes(term.replace(/^"|"$/g,'').toLocaleLowerCase())))return 'content';
+      if(this.options.hasLink&&!/https?:\/\/\S+/i.test(content))return 'link';
+      if(this.options.hasFile&&!message.attachments?.length)return 'file';
+      if(!new RegExp(this.options.pattern||'','i').test(content))return 'regex';
       return '';
     };
     this.exclusionReason=exclusion;
     const unique=new Map();
     for(const group of data.messages)for(const message of group){
       if(message?.hit!==true)continue;
-      if(!/^\d+$/.test(String(message.id||''))){this.state.malformed=true;continue;}
+      if(!validId(message.id)){this.state.malformed=true;continue;}
       unique.set(String(message.id),message);
     }
-    this.state._pageIds=[...unique.keys()];this.state._pageStaleSuccess=false;
+    this.state._pageIds=[...unique.keys()];
     const targets=[],skipped=[];
     for(const [id,message] of unique){
       const previous=this.ledger?.get(id);
       if(previous&&previous.status!=='pending'){
-        if(previous.status==='success')this.state._pageStaleSuccess=true;
         skipped.push(message);continue;
       }
       const reason=exclusion(message);
       // Compatibility for source-level filtering tests; production always owns a ledger.
       if(this.setOutcome)this.setOutcome(id,reason?'excluded':'pending',reason);
-      if(reason)skipped.push(message);else if(!this.finishedIds?.has(id))targets.push(message);
+      if(reason)skipped.push(message);else targets.push(message);
     }
     this.state._messagesToDelete=targets;this.state._skippedMessages=skipped;
 }
@@ -391,6 +387,7 @@ async function deleteMessage(message) {
     this.beforeRequest();
     const resp=await this.api.request(`/channels/${message.channel_id}/messages/${message.id}`, 'DELETE', this.options.deleteDelay);
     this.afterRequest();
+    if(resp.status>=500){const error=new Error('서버 오류로 삭제 결과를 확정하지 못했습니다. 중복 요청을 중단했습니다.');error.incomplete=true;throw error;}
     if (!resp.ok) {log.warn(`메시지 삭제 실패: HTTP ${resp.status}`);return 'FAILED';}
     return 'OK';
 }
@@ -438,7 +435,7 @@ class DiscordApi {
         });
       } catch (error) {
         if (this.signal?.aborted || error.name === 'AbortError') throw stopped();
-        if(method==='DELETE')throw new Error('삭제 응답을 확인하지 못했습니다. 중복 삭제 요청을 중단했습니다.');
+        if(method==='DELETE'){const uncertain=new Error('삭제 응답을 확인하지 못했습니다. 중복 삭제 요청을 중단했습니다.');uncertain.incomplete=true;throw uncertain;}
         if (attempt === 3) throw new Error('네트워크 요청에 실패했습니다. 연결 상태를 확인해 주세요.');
         await this.sleeper(delay * (attempt + 1), this.signal, 'retry'); continue;
       }
@@ -457,14 +454,14 @@ class DiscordApi {
         this.onThrottle(ms);
         // Wait even on the final attempt, then end; never ignore a server cooldown.
         await this.sleeper(ms, this.signal, 'rate-limit');
-        if(method==='DELETE'&&response.status===202)throw new Error('삭제 결과가 아직 확정되지 않아 중복 요청을 중단했습니다.');
-        if (attempt === 3) throw new Error('요청 제한 또는 검색 인덱싱 대기가 반복되어 중단했습니다. 나중에 다시 시도해 주세요.');
+        if(method==='DELETE'&&response.status===202){const error=new Error('삭제 결과가 아직 확정되지 않아 중복 요청을 중단했습니다.');error.incomplete=true;throw error;}
+        if (attempt === 3){const error=new Error('요청 제한 또는 검색 인덱싱 대기가 반복되어 중단했습니다. 나중에 다시 시도해 주세요.');error.incomplete=true;error.definiteFailure=method==='DELETE'&&response.status===429;throw error;}
         continue;
       }
       if (response.status >= 500 && attempt < 3 && method!=='DELETE') {
         await this.sleeper(delay * (attempt + 1), this.signal, 'retry'); continue;
       }
-      if ([401, 403].includes(response.status)) throw new Error(`Discord HTTP ${response.status}: 인증 또는 접근 권한을 확인해 주세요.`);
+      if ([401, 403].includes(response.status)){const error=new Error(`Discord HTTP ${response.status}: 인증 또는 접근 권한을 확인해 주세요.`);error.definiteFailure=method==='DELETE';throw error;}
       return response;
     }
   }
@@ -688,5 +685,5 @@ const cache = {};
 function require(id) { if (cache[id]) return cache[id]; const exports = {}; cache[id] = exports; modules[id](exports, require); return exports; }
 require('src/runtime/entry.js');
 
-return {fresh:true,version:4};
+return {fresh:true,version:5};
 }
