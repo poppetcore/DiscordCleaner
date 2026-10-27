@@ -11,24 +11,41 @@
      Original project: https://github.com/victornpb/undiscord (MIT + attribution). -->
 <div id="undiscord" class="redact">
 <div id="appContent">
-<header class="app-bar">
+<header class="app-bar" id="appHeader">
 <img class="app-icon" src="../assets/cleanup-symbol.svg" width="38" height="38" alt="메시지 정리 기능">
 <div class="title-group"><h1 class="title">Discord Cleaner</h1><p class="subtitle">Discord 메시지 검색 및 정리</p></div>
+<label class="privacy-control"><input id="redact" type="checkbox" checked>민감 정보 가리기</label>
 </header>
-<nav class="tabs" role="tablist" aria-label="기능">
+<nav id="appTabs" class="tabs" role="tablist" aria-label="기능">
 <button id="tab-delete" role="tab" aria-selected="true" aria-controls="panel-delete" tabindex="0">메시지 삭제</button>
 <button id="tab-filter" role="tab" aria-selected="false" aria-controls="panel-filter" tabindex="-1">검색 필터</button>
 <button id="tab-progress" role="tab" aria-selected="false" aria-controls="panel-progress" tabindex="-1">작업 진행 상황<span id="busyDot" hidden aria-label="작업 중"> ●</span></button>
 </nav><main>
 <section class="section-card" id="panel-delete" role="tabpanel" tabindex="0" aria-labelledby="tab-delete">
-<div class="section-head"><h2 id="deleteTitle" class="section-title">메시지 삭제</h2></div>
+<div class="section-head"><h2 id="deleteTitle" class="section-title">메시지 삭제</h2><button id="refreshDMs" class="secondary" type="button" title="DM 목록 새로고침" aria-label="DM 목록 새로고침" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 7a7 7 0 0 1 11.5-1L20 9M4 15l2.4 3A7 7 0 0 0 17.9 17"/></svg></button></div>
+<div id="targetControl" class="field" hidden><label for="targetTab">작업 대상 Discord 탭</label><select id="targetTab" priv><option value="">Discord 탭 선택</option></select></div>
 <div id="noticeBox" class="info-box"><p id="notice" role="status" aria-live="polite">Discord 정보를 확인하고 있습니다.</p><button id="openDiscord" class="secondary" hidden>Discord 열기</button></div>
 <input id="guildId" type="hidden"><input id="channelId" type="hidden"><input id="authorId" type="hidden">
-<div class="field"><span id="guildLabel" class="field-label">서버</span><span id="guildName">정보 확인 불가</span></div>
-<div class="field" id="channelField"><span class="field-label">채널</span><span id="channelName">정보 확인 불가</span></div>
+<div id="singleControls"><div class="field"><span id="guildLabel" class="field-label">서버</span><span id="guildName" priv>정보 확인 불가</span></div>
+<div class="field" id="channelField"><span class="field-label">채널</span><span id="channelName" priv>정보 확인 불가</span></div>
 <label class="check-field" id="serverScopeField"><input id="serverScope" type="checkbox">서버의 모든 채널에서 검색</label>
-<div class="field"><label for="authorSelect">작성자</label><select id="authorSelect"><option value="">전체 작성자</option></select></div>
-<button id="start" disabled>검색 및 삭제</button>
+<div class="field"><label for="authorSelect">작성자</label><select id="authorSelect" priv><option value="">전체 작성자</option></select></div>
+</div><div id="dmControls" hidden>
+<div class="dm-toolbar"><label class="check-field dm-select-all"><input id="selectAllDMs" type="checkbox"><span id="dmTotalLabel">전체 선택</span></label><span id="dmSelection" role="status" aria-live="polite">0개 선택</span></div>
+<p id="dmCount" class="hint">조회된 DM 0개</p><p class="hint">본인 메시지 존재 여부는 삭제 작업 중 자동으로 확인합니다.</p>
+<p id="dmError" role="status" class="hint"></p><div id="dmList" aria-label="DM 대화 목록" hidden></div></div><button id="start" disabled>검색 및 삭제</button>
+<div id="confirmation" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmDescription confirmWarning" hidden>
+<section class="confirm-card confirmation-card">
+<header class="confirmation-header"><h2 id="confirmTitle" class="confirm-title">메시지 삭제 확인</h2><button id="closeConfirmation" class="secondary confirmation-close" type="button" aria-label="삭제 확인 취소 및 닫기">×</button></header>
+<div class="confirmation-content" id="confirmationContent">
+<p id="confirmDescription" class="hint">삭제할 메시지의 범위를 확인해 주세요.</p>
+<dl id="confirmationScope" class="confirmation-summary info-box" aria-label="삭제 대상 요약"></dl>
+<details id="confirmationFilters" class="confirmation-filters"><summary>검색 조건 상세보기</summary><dl id="confirmationConditions" class="confirmation-conditions info-box"></dl></details>
+</div>
+<footer class="confirmation-footer"><p id="confirmWarning" class="confirmation-warning"><span aria-hidden="true">⚠</span> 삭제한 메시지는 복구할 수 없습니다.</p><div class="confirm-actions"><button id="reject" class="secondary" type="button">취소</button><button id="approve" type="button">삭제 시작</button></div></footer>
+</section>
+</div>
+
 </section>
 <section class="section-card section-pink" id="panel-filter" role="tabpanel" tabindex="0" aria-labelledby="tab-filter" hidden>
 <div class="section-head"><h2 id="filterTitle" class="section-title">검색 필터</h2></div>
@@ -50,42 +67,48 @@
 </div></details>
 <details class="details"><summary>고급 옵션 · 요청 대기 시간</summary><div class="field-stack">
 <div class="field"><label for="pattern">정규식 필터</label><input id="pattern" type="text" placeholder="대소문자 구분 없는 정규식" priv></div>
-<div class="field"><label for="searchDelay">검색 간격 <span id="searchDelayValue">30000ms</span></label><input id="searchDelay" type="range" value="30000" step="100" min="100" max="60000"></div>
-<div class="field"><label for="deleteDelay">삭제 간격 <span id="deleteDelayValue">1000ms</span></label><input id="deleteDelay" type="range" value="1000" step="50" min="50" max="10000"></div>
-<p class="hint">Discord의 요청 제한 대기는 설정값보다 우선합니다.</p>
+<p id="batchSearchHint" class="hint" hidden>DM 일괄 삭제는 검색 간격을 자동으로 적용합니다. 최소 2,000ms이며 서버 요청 제한에 따라 늘어납니다.</p><div class="delay-grid">
+<div class="field"><label for="searchDelay">검색 간격 (ms)<span id="searchDelayValue" hidden></span></label><div class="number-field"><input id="searchDelay" type="number" inputmode="numeric" value="30000" step="1" min="100" max="60000" aria-describedby="delayError"><span class="unit" aria-hidden="true">ms</span></div></div>
+<div class="field"><label for="deleteDelay">삭제 간격 (ms)<span id="deleteDelayValue" hidden></span></label><div class="number-field"><input id="deleteDelay" type="number" inputmode="numeric" value="1000" step="1" min="50" max="10000" aria-describedby="delayError"><span class="unit" aria-hidden="true">ms</span></div></div>
+</div><p id="delayError" class="input-error" role="status" hidden></p>
 </div></details>
 </div>
 </section>
 <section class="section-card section-teal" id="panel-progress" role="tabpanel" tabindex="0" aria-labelledby="tab-progress" hidden>
-<div class="section-head"><h2 id="progressTitle" class="section-title">작업 진행 상황</h2></div>
-<p id="jobNotice" class="info-box" role="status" aria-live="polite" hidden></p>
-<div class="info-box" aria-live="polite" aria-atomic="true">
-<div class="status-row"><span class="status-badge"><span class="status-dot" aria-hidden="true"></span><span id="jobStatus" data-phase="idle">대기 중</span></span></div>
-<div class="stats"><div class="stat"><span class="stat-label" title="실제로 확인된 고유 삭제 대상 수">검색</span><strong id="countTotal" class="stat-value">—</strong></div><div class="stat"><span class="stat-label">삭제 성공</span><strong id="countSuccess" class="stat-value">—</strong></div><div class="stat"><span class="stat-label">삭제 실패</span><strong id="countFailed" class="stat-value">—</strong></div></div>
-<progress id="progressBar" aria-label="확인한 삭제 대상의 처리 진행률" max="100" hidden></progress>
+<div class="section-head progress-heading"><h2 id="progressTitle" class="section-title">작업 진행 상황</h2><span class="status-badge"><span class="status-dot" aria-hidden="true"></span><span id="jobStatus" data-phase="idle" role="status">대기 중</span></span></div>
+<div id="progressBody">
+<p id="jobNotice" class="progress-alert" role="status" hidden></p>
+<section class="progress-card message-summary" aria-label="메시지 처리 요약">
+<div class="card-heading"><h3>메시지 처리</h3><span id="messageScope" class="micro-label">작업 대기</span></div>
+<div class="stats"><div class="stat"><span class="stat-label" title="현재 검색 조건에 맞는 삭제 대상 메시지">확인된 메시지</span><strong id="countTotal" class="stat-value">—</strong></div><div class="stat"><span class="stat-label">삭제 성공</span><strong id="countSuccess" class="stat-value">—</strong></div><div class="stat"><span class="stat-label">삭제 실패</span><strong id="countFailed" class="stat-value">—</strong></div></div>
+<div class="progress-caption"><span id="progressScope">진행 대기</span><span id="pendingMessages">미처리 —</span></div>
+<progress id="progressBar" aria-label="작업 처리 진행률" max="100" value="0" hidden></progress>
+</section>
+<section id="currentTargetCard" class="progress-card target-card" aria-labelledby="currentTargetHeading">
+<div class="card-heading"><h3 id="currentTargetHeading">현재 처리 중</h3><span id="targetStatus" class="state-chip">대기</span></div>
+<div class="target-line"><strong id="targetName" class="target-name" priv>진행 중인 대상 없음</strong><span class="target-counts" aria-label="현재 대상의 메시지 수">확인 <b id="targetCount">—</b><span class="mini-divider" aria-hidden="true"></span>성공 <b id="targetSuccess">—</b></span></div>
+<div class="target-filter"><span>검색 조건</span><span id="targetFilters" priv>전체 메시지</span><span id="waitStatus" class="wait-status" role="status" hidden></span></div>
+</section>
+<section id="dmResultCard" class="progress-card" aria-labelledby="dmResultHeading" hidden>
+<div class="card-heading"><h3 id="dmResultHeading">DM 처리 결과</h3><span id="dmProcessed" class="micro-label">0 / 0개 처리</span></div>
+<dl class="dm-result-grid"><div><dt>완료</dt><dd id="dmDone">0</dd></div><div><dt>메시지 없음</dt><dd id="dmEmpty">0</dd></div><div><dt>확인 불가</dt><dd id="dmUncertain">0</dd></div><div><dt>오류</dt><dd id="dmErrors">0</dd></div><div><dt>미처리</dt><dd id="dmPending">0</dd></div></dl>
+</section>
+<section id="recentCard" class="progress-card recent-card" aria-labelledby="recentHeading" hidden>
+<div class="card-heading"><h3 id="recentHeading">최근 처리 내역</h3><button id="toggleHistory" class="secondary compact-button" type="button" aria-controls="recentResults" aria-expanded="false" hidden>전체 보기</button></div>
+<div id="recentResults" class="recent-results" role="list" aria-label="DM 처리 내역"></div><p id="recentEmpty" class="hint">아직 처리한 DM이 없습니다.</p>
+</section>
 </div>
-<button id="stop" disabled>작업 중단</button>
+<div class="progress-actions"><button id="stop" disabled>작업 중단</button>
 <details class="details" id="logDetails"><summary>작업 로그 확인</summary><div class="field-stack">
-<pre id="logArea" class="info-box" tabindex="0" aria-label="작업 로그">최근 작업 로그가 여기에 표시됩니다.</pre>
+<div id="logArea" priv class="info-box" tabindex="0" aria-label="상세 작업 로그"></div>
 <div class="button-row"><button id="clear" class="secondary">로그 지우기</button><label class="check-field"><input id="autoScroll" type="checkbox" checked>자동 스크롤</label></div>
-</div></details>
-<label class="check-field"><input id="redact" type="checkbox" checked>민감 정보 가리기</label>
+</div></details></div>
+
 </section>
 </main>
 
 </div>
-<div id="confirmation" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmDescription confirmWarning" hidden>
-<section class="confirm-card confirmation-card">
-<header class="confirmation-header"><h2 id="confirmTitle" class="confirm-title">메시지 삭제 확인</h2><button id="closeConfirmation" class="secondary confirmation-close" type="button" aria-label="삭제 확인 취소 및 닫기">×</button></header>
-<div class="confirmation-content" id="confirmationContent">
-<p id="confirmDescription" class="hint">삭제할 메시지의 범위를 확인해 주세요.</p>
-<dl id="confirmationScope" class="confirmation-summary info-box" aria-label="삭제 대상 요약"></dl>
-<details id="confirmationFilters" class="confirmation-filters"><summary>검색 조건 상세보기</summary><dl id="confirmationConditions" class="confirmation-conditions"></dl></details>
-</div>
-<footer class="confirmation-footer"><p id="confirmWarning" class="confirmation-warning"><span aria-hidden="true">⚠</span> 삭제한 메시지는 복구할 수 없습니다.</p><div class="confirm-actions"><button id="reject" class="secondary" type="button">취소</button><button id="approve" type="button">삭제 시작</button></div></footer>
-</section>
-</div>
-<div id="linkDialog" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="linkTitle" hidden><section class="confirm-card"><h2 id="linkTitle" class="confirm-title">메시지 범위 입력</h2><p class="confirm-message">Discord에서 복사한 메시지 링크 또는 ID를 입력해 주세요.</p><label class="field-label" for="messageLink">메시지 링크 또는 ID</label><input id="messageLink" class="link-input" type="text" placeholder="메시지 링크 또는 숫자 ID"><p id="linkError" class="hint" role="alert"></p><div class="confirm-actions"><button id="cancelLink" class="secondary">취소</button><button id="applyLink">입력 적용</button></div></section></div>
+<div id="linkDialog" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="linkTitle" hidden><section class="confirm-card"><h2 id="linkTitle" class="confirm-title">메시지 범위 입력</h2><p class="confirm-message">Discord에서 복사한 메시지 링크 또는 ID를 입력해 주세요.</p><label class="field-label" for="messageLink">메시지 링크 또는 ID</label><input id="messageLink" priv class="link-input" type="text" placeholder="메시지 링크 또는 숫자 ID"><p id="linkError" class="hint" role="alert"></p><div class="confirm-actions"><button id="cancelLink" class="secondary">취소</button><button id="applyLink">입력 적용</button></div></section></div>
 </div>
 <script src="popup.js"></script>
 </body></html>

@@ -32,7 +32,7 @@ Derivatives must keep attribution comments to the original project in the code r
 - Discord 탭 자동 감지, 대상 경로·채널 검증 및 중복 실행 방지
 - 서버·채널·DM·작성자 이름 표시와 DM 참여자 제한
 - 메시지 삭제 / 검색 필터 / 작업 진행 상황 탭 구성
-- 선행 검색, 독립 삭제 대기열, 고유 삭제 대상 집계와 실제 처리 진행률
+- 선행 검색, 독립 삭제 대기열, 전체 검색 기준 진행률과 잔여 확인
 - 삭제 전 확인창, 조건 상세보기, 중단·상태 조회와 키보드 포커스 관리
 - 사용자 인터페이스 구성, Freesentation 동봉과 사용자 제공 휴지통 아이콘 적용
 
