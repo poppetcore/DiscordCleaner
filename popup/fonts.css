@@ -1,0 +1,33 @@
+/* Official, unmodified Freesentation WOFF2 files. SIL OFL 1.1.
+   Copyright 2024 The Freesentation Authors (https://freesentation.blog/).
+   Source: https://github.com/Freesentation/freesentation
+   Full license: ../LICENSES.txt. No installed-font or CDN dependency. */
+@font-face {
+  font-family:"프리젠테이션";
+  src:url("../fonts/freesentation-4regular.woff2") format("woff2");
+  font-style:normal;
+  font-weight:400;
+  font-display:block;
+}
+@font-face {
+  font-family:"프리젠테이션";
+  src:url("../fonts/freesentation-5medium.woff2") format("woff2");
+  font-style:normal;
+  font-weight:500;
+  font-display:block;
+}
+@font-face {
+  font-family:"프리젠테이션";
+  src:url("../fonts/freesentation-6semibold.woff2") format("woff2");
+  font-style:normal;
+  font-weight:600;
+  font-display:block;
+}
+@font-face {
+  font-family:"프리젠테이션";
+  src:url("../fonts/freesentation-7bold.woff2") format("woff2");
+  font-style:normal;
+  font-weight:700;
+  font-display:block;
+}
+:root {font-synthesis:none;}
